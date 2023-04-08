@@ -7,7 +7,10 @@
 import pyaudio
 import wave
 
-def start_audio(time = 5,save_file=""):
+import requests as requests
+
+
+def start_audio(time = 5,save_file="test.wav"):
 	CHUNK = 1024
 	FORMAT = pyaudio.paInt16
 	CHANNELS = 2
@@ -42,4 +45,26 @@ def start_audio(time = 5,save_file=""):
 	wf.writeframes(b''.join(frames))
 	wf.close()
 
-start_audio(save_file=".wav/hushan/2.wav")
+# start_audio()
+
+from fastapi import FastAPI,UploadFile,File
+from typing import List
+
+app=FastAPI()
+
+
+async def save_files(files):
+	for file in files:
+		"type:<class 'coroutine'>"
+		cont=await file.read()
+		with open(f'myfiles/{file.filename}','wb') as f:
+			f.write(cont)
+	return 'success'
+
+@app.post('/',summary='上传文件')
+async def upload_files(files:List[UploadFile]=File(...)):
+	return await save_files(files)
+
+if __name__ == '__main__':
+	import uvicorn
+	uvicorn.run('test:app',host='127.0.0.1',port=8999)
